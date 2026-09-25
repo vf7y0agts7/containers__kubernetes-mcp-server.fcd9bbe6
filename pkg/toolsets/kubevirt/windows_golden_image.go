@@ -108,16 +108,16 @@ func windowsGoldenImageHandler(params api.PromptHandlerParams) (*api.PromptCallR
 	}
 
 	parsedURL, err := url.Parse(winImageDownloadURL)
-	if err != nil || parsedURL.Scheme != "https" {
+	if err != nil || parsedURL.Scheme != "https" || parsedURL.User != nil {
 		return nil, fmt.Errorf("winImageDownloadURL must be an https:// URL without embedded credentials, got %q", winImageDownloadURL)
 	}
 
-	if !reVersionFormat.MatchString(pipelineVersion) {
+	if pipelineVersion != "" && !reVersionFormat.MatchString(pipelineVersion) {
 		return nil, fmt.Errorf("invalid pipelineVersion %q: must be in format X.Y.Z (e.g. 0.25.0)", pipelineVersion)
 	}
 
 	if windowsVersion == "" {
-		windowsVersion = "2k25"
+		windowsVersion = "2k22"
 	}
 
 	winDefaults := resolveWindowsDefaults(windowsVersion)
@@ -136,7 +136,7 @@ func windowsGoldenImageHandler(params api.PromptHandlerParams) (*api.PromptCallR
 	}
 
 	if eulaConsent == eulaElicitationUnsupported {
-		pipelineRunYAML, yamlErr := buildStaticPipelineRun(winImageDownloadURL, namespace, pipelineVersion, winDefaults, true)
+		pipelineRunYAML, yamlErr := buildStaticPipelineRun(winImageDownloadURL, namespace, pipelineVersion, winDefaults, false)
 		if yamlErr != nil {
 			return nil, fmt.Errorf("failed to build PipelineRun YAML: %w", yamlErr)
 		}
