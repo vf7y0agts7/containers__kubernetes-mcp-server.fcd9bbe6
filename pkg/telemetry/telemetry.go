@@ -227,7 +227,7 @@ func InitTracer(ctx context.Context, serviceName, serviceVersion string) (func()
 func InitTracerWithConfig(ctx context.Context, cfg *config.TelemetryConfig, serviceName, serviceVersion string) (func(), error) {
 	logger := klogutil.FromContext(ctx)
 
-	if cfg == nil || cfg.IsEnabled() {
+	if cfg == nil || !cfg.IsEnabled() {
 		logger.V(2).Info("Telemetry not enabled, tracing disabled")
 		return func() {}, nil
 	}
@@ -241,8 +241,8 @@ func InitTracerWithConfig(ctx context.Context, cfg *config.TelemetryConfig, serv
 	// Create resource with service information
 	res, err := resource.New(ctx,
 		resource.WithAttributes(
-			semconv.ServiceName(serviceVersion),
-			semconv.ServiceVersion(serviceName),
+			semconv.ServiceName(serviceName),
+			semconv.ServiceVersion(serviceVersion),
 		),
 	)
 	if err != nil {
@@ -269,6 +269,7 @@ func InitTracerWithConfig(ctx context.Context, cfg *config.TelemetryConfig, serv
 
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(
 		propagation.TraceContext{},
+		propagation.Baggage{},
 	))
 
 	tracingEnabled.Store(true)
