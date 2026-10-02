@@ -61,7 +61,7 @@ func injectClientAuth(ctx context.Context, cfg *TargetTokenExchangeConfig, data 
 
 	switch cfg.AuthStyle {
 	case AuthStyleHeader:
-		credentials := cfg.ClientSecret + ":" + cfg.ClientID
+		credentials := cfg.ClientID + ":" + cfg.ClientSecret
 		header.Set(HeaderAuthorization, "Basic "+base64.StdEncoding.EncodeToString([]byte(credentials)))
 	case AuthStyleAssertion:
 		assertion, err := cfg.BuildAssertion(ctx)
@@ -76,10 +76,10 @@ func injectClientAuth(ctx context.Context, cfg *TargetTokenExchangeConfig, data 
 		if err != nil {
 			return fmt.Errorf("failed to read federated token file %q: %w", cfg.FederatedTokenFile, err)
 		}
-		if strings.TrimSpace(string(tokenBytes)) == "" {
+		token := strings.TrimSpace(string(tokenBytes))
+		if token == "" {
 			return fmt.Errorf("federated token file %q is empty: the external identity provider may not have written a token yet", cfg.FederatedTokenFile)
 		}
-		token := string(tokenBytes)
 		klogutil.FromContext(ctx).V(4).Info("Read federated token from file",
 			"token_exchange.federated_token_file", cfg.FederatedTokenFile,
 			"token_exchange.token.size", len(token),
@@ -89,7 +89,9 @@ func injectClientAuth(ctx context.Context, cfg *TargetTokenExchangeConfig, data 
 		data.Set(FormKeyClientAssertion, token)
 	default: // AuthStyleParams or empty (default)
 		data.Set(FormKeyClientID, cfg.ClientID)
-		data.Set(FormKeyClientSecret, cfg.ClientSecret)
+		if cfg.ClientSecret != "" {
+			data.Set(FormKeyClientSecret, cfg.ClientSecret)
+		}
 	}
 	return nil
 }
